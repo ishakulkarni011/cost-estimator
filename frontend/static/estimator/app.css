@@ -1,0 +1,395 @@
+/* All colours live here. A black page with white text and blue highlights.
+   Printing switches back to dark text on white paper. */
+:root {
+  color-scheme: dark;
+  --page: #050506;
+  --paper: #16181d;
+  --ink: #f1f3f6;
+  --muted: #b3b9c3;
+  --rule: #30343c;
+  --field-bg: #0c0d10;
+  --field-border: #5a606b;
+  --placeholder: #838a96;
+  --accent: #5b9bff;
+  --accent-hover: #8ab8ff;
+  --button: #2563eb;
+  --button-hover: #1d4fd8;
+  --accent-tint: #16233d;
+  --tint: #22252c;
+  --tint-border: #353943;
+  --total-bg: #1d2026;
+  --error: #ff7b6e;
+  --error-tint: #2e1512;
+  --good: #5b9bff;
+  --highlight: #16233d;
+  --highlight-border: #5b9bff;
+  --header-bg: #101217;
+  --header-text: #ffffff;
+  --header-muted: #a8afba;
+  --header-accent: #5b9bff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1, h2, h3, legend { font-weight: 700; }
+
+a { color: var(--accent); }
+
+code { font-size: 13px; background: var(--paper); padding: 1px 4px; border-radius: 2px; }
+
+/* Full width, with side padding that grows on bigger screens */
+.wrap { padding: 0 clamp(16px, 4vw, 64px); }
+
+
+/* Header and tabs */
+
+/* Dark band with everything centred and a blue title */
+.site-header { background: var(--header-bg); color: var(--header-text); border-bottom: 4px solid var(--button); }
+.site-header .wrap { padding-top: 30px; padding-bottom: 24px; text-align: center; }
+h1 { font-size: 32px; margin: 0 0 6px; letter-spacing: -0.01em; color: var(--header-accent); }
+.lede { margin: 0 auto; color: var(--header-muted); max-width: 62ch; font-weight: 600; }
+
+
+/* Sidebar with the tabs on the left, content on the right */
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  padding-top: 24px;
+  padding-bottom: 64px;
+}
+
+/* The sidebar stays in view while the content scrolls */
+.tabs { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 6px; }
+
+.tab {
+  display: block;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-left: 4px solid transparent;
+  border-radius: 0 4px 4px 0;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tab-hint { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+.tab:hover { background: var(--tint); color: var(--ink); }
+.tab.active { background: var(--paper); color: var(--ink); border-color: var(--rule); border-left-color: var(--accent); }
+
+.intro { margin: 0 0 16px; color: var(--muted); }
+
+/* On narrow screens the sidebar turns back into a row of tabs along the top */
+@media (max-width: 800px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .tabs { position: static; flex-direction: row; overflow-x: auto; border-bottom: 1px solid var(--rule); gap: 0; }
+  .tab { border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 10px 12px; white-space: nowrap; }
+  .tab.active { background: none; border-bottom-color: var(--accent); }
+  .tab-hint { display: none; }
+}
+
+
+/* Panels and headings */
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+/* Result headings sit on a light blue band with a blue bar on the left */
+.panel h2 {
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--tint);
+  border-left: 4px solid var(--accent);
+  padding: 7px 12px;
+  margin: 0 0 14px;
+}
+
+/* Form headings are lighter, so the results stand out more than the inputs */
+legend {
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  color: var(--ink);
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--rule);
+  margin: 0 0 14px;
+}
+.panel h3 { font-size: 14px; color: var(--ink); margin: 0 0 8px; }
+
+.explainer {
+  background: var(--tint);
+  border: 1px solid var(--tint-border);
+  border-radius: 4px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+}
+.explainer summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.explainer dl { margin: 6px 0 4px; }
+.explainer dt { font-weight: 600; margin-top: 10px; }
+.explainer dd { margin: 2px 0 0; max-width: 80ch; }
+
+
+/* Forms */
+
+/* min-width stops a fieldset growing to fit the wide benefits table */
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+fieldset + fieldset, .form-columns + fieldset { margin-top: 26px; }
+
+.form-columns { display: grid; gap: 26px 40px; }
+@media (min-width: 1200px) {
+  .form-columns { grid-template-columns: 1fr 1fr; }
+  .form-columns fieldset + fieldset { margin-top: 0; }
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px 22px;
+}
+
+label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: 14px; }
+label small, .help { font-weight: 400; font-size: 14px; color: var(--muted); }
+.help { margin: 0 0 10px; max-width: 80ch; }
+
+input, select {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  padding: 7px 9px;
+  border: 1px solid var(--field-border);
+  border-radius: 3px;
+  background: var(--field-bg);
+}
+input::placeholder { color: var(--placeholder); }
+input:hover, select:hover { border-color: var(--muted); }
+input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.invalid { border-color: var(--error); background: var(--error-tint); }
+
+button { font: inherit; cursor: pointer; }
+
+.primary {
+  background: var(--button);
+  color: #fff;
+  border: 1px solid var(--button);
+  border-radius: 3px;
+  padding: 9px 22px;
+  font-weight: 600;
+}
+.primary:hover { background: var(--button-hover); }
+.primary:disabled { opacity: 0.6; cursor: progress; }
+
+.secondary {
+  background: var(--paper);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 7px 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.secondary:hover { background: var(--accent-tint); }
+
+/* The example button sits right after its sentence, not at the far edge */
+.intro-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin-bottom: 16px; }
+.intro-row .intro { margin: 0; }
+
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link:hover { color: var(--accent-hover); }
+
+.add-benefit { margin-top: 10px; }
+
+.form-actions { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); }
+
+.error-summary {
+  border-left: 4px solid var(--error);
+  background: var(--error-tint);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+.error-summary strong { color: var(--error); }
+.error-summary ul { margin: 6px 0 0; padding-left: 20px; }
+
+
+/* Tables */
+
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+thead th { font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--ink); }
+.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.benefits th { padding-left: 0; }
+.benefits td { border: 0; padding: 4px 8px 4px 0; }
+.benefits input[name=name] { min-width: 230px; }
+.benefits input.num { min-width: 80px; }
+.benefits select { min-width: 110px; }
+.benefits select[name=currency] { min-width: 72px; }
+.benefits select[name=treatment] { min-width: 300px; }
+.benefits .remove-cell { vertical-align: middle; font-size: 14px; }
+
+/* Keeps the figures close to their labels on very wide screens */
+.cost-table { max-width: 1400px; }
+
+.cost-table tbody th { padding-top: 18px; font-size: 15px; color: var(--ink); }
+.cost-table .subtotal-row td { font-weight: 600; }
+.cost-table .total-col { background: var(--total-bg); }
+.cost-table .grand-total td { font-weight: 700; font-size: 16px; border-top: 2px solid var(--ink); }
+.cost-table tfoot td { border-bottom: 0; }
+
+.req-table th:nth-child(2) { width: 170px; }
+.req-table th:nth-child(3) { width: 90px; }
+.req-table th:nth-child(4) { width: 150px; }
+
+.note { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.muted { color: var(--muted); }
+
+
+/* Results */
+
+.result-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; }
+.result-toolbar select { width: auto; }
+label.inline { font-weight: 400; }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.summary > div { padding: 2px 20px; border-left: 1px solid var(--rule); }
+.summary > div:first-child { border-left: 0; padding-left: 0; }
+.summary .label { display: block; font-size: 13px; color: var(--muted); }
+.summary .figure { display: block; font-size: 22px; font-weight: 700; }
+.summary small { display: block; color: var(--muted); }
+
+.answer { font-size: 19px; line-height: 1.5; margin: 0 0 18px; max-width: 50ch; }
+.answer strong { font-weight: 700; color: var(--accent); }
+
+.answer-layout { display: grid; gap: 10px 56px; }
+@media (min-width: 1200px) {
+  .answer-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+}
+
+.breakdown { margin-bottom: 8px; }
+.breakdown td { padding: 8px 10px 8px 0; }
+.breakdown tfoot td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; }
+
+.route { margin: 0 0 16px; padding: 10px 14px; background: var(--tint); border-radius: 3px; }
+.route-label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); }
+
+.stale-note {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: var(--highlight);
+  border-left: 4px solid var(--highlight-border);
+}
+
+.cost-table tbody th .note { font-weight: 400; }
+
+.checks { list-style: none; padding: 0; margin: 0; }
+.checks li { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.checks li:last-child { border-bottom: 0; }
+.status { font-size: 13px; font-weight: 700; }
+.status.met { color: var(--good); }
+.status.not-met { color: var(--error); }
+
+.assumptions li { margin-bottom: 6px; }
+.timeline { padding-left: 20px; }
+.timeline li { margin-bottom: 4px; }
+
+.working { border-top: 1px solid var(--rule); padding: 10px 0; }
+.working summary { cursor: pointer; font-weight: 600; }
+.working-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 14px; }
+.working-table th, .working-table td { padding: 4px 6px; font-size: 13px; }
+.working-table .strong td { font-weight: 700; }
+
+
+/* Footnote style source references */
+
+.cite { font-size: 11px; margin-left: 2px; }
+.cite a { text-decoration: none; }
+.cite a:hover { text-decoration: underline; }
+.source-list { margin: 0; padding-left: 22px; font-size: 13px; color: var(--muted); }
+.source-list { font-size: 14px; }
+.source-list li { margin-bottom: 6px; padding: 2px 6px; }
+.source-list li.highlight { background: var(--highlight); }
+
+
+/* Printing: only the results of the open tab, plus their sources */
+
+@media print {
+  /* Dark text on white paper, whatever the screen colours are */
+  :root {
+    color-scheme: light;
+    --paper: #ffffff;
+    --ink: #0d0f12;
+    --muted: #5a616c;
+    --rule: #e2e4e8;
+    --accent: #1d5bd6;
+    --tint: #f0f1f4;
+    --total-bg: #f6f7f9;
+    --good: #1d5bd6;
+  }
+
+  body { background: #fff; font-size: 12px; }
+  h1 { color: var(--ink); }
+  .wrap { padding: 0; }
+
+  .site-header { background: none; color: var(--ink); border-bottom: 2px solid var(--ink); }
+  .site-header .wrap { padding-top: 0; }
+  .lede { color: var(--muted); margin-bottom: 10px; }
+
+  .tabs, .intro-row, .intro, .explainer, form, .result-toolbar, .stale-note, .screen-only { display: none !important; }
+
+  /* Totals print once at the end of the table, not at the foot of every page */
+  tfoot { display: table-row-group; }
+
+  /* Year headings in the Working section, without the open and close marker */
+  .working summary { list-style: none; font-size: 15px; margin-top: 10px; }
+  .working summary::-webkit-details-marker { display: none; }
+  .layout { display: block; padding: 14px 0 0; }
+
+  .panel { border: 0; padding: 0; margin-bottom: 18px; }
+  .panel h2 { break-after: avoid; }
+  tr, .checks li, .summary { break-inside: avoid; }
+  .working { border: 0; padding: 0; }
+
+  /* Print the sources that belong to the tab being printed */
+  #tab-sources { display: block !important; }
+  body[data-tab="cost"] #immigration-sources-panel,
+  body[data-tab="immigration"] #cost-sources-panel { display: none; }
+
+  /* Links cannot be clicked on paper, so print the address after each source */
+  .source-list a { color: var(--ink); text-decoration: none; }
+  .source-list a::after { content: " (" attr(href) ")"; color: var(--muted); word-break: break-all; }
+  .cite a { color: var(--ink); }
+
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+
+/* Small screens */
+
+@media (max-width: 600px) {
+  h1 { font-size: 25px; }
+  .panel { padding: 16px; }
+  .summary > div { border-left: 0; padding: 8px 0; border-top: 1px solid var(--rule); }
+  .summary > div:first-child { border-top: 0; }
+}

@@ -1,6 +1,7 @@
 import json
 
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
 from .engine.benefits import Benefit
@@ -9,6 +10,11 @@ from .engine.grossup import GrossUpError
 from .engine.immigration import ImmigrationInput, assess
 from .forms import AssignmentForm, BenefitForm, ImmigrationForm, form_errors
 from .serializers import serialize_estimate, serialize_immigration
+
+
+# The single page; everything else on it is loaded through the API
+def index(request):
+    return render(request, "estimator/index.html")
 
 
 def error_response(message, errors=None, status=400):

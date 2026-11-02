@@ -1,0 +1,264 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Global Mobility Planner</title>
+  <link rel="stylesheet" href="{% static 'estimator/app.css' %}">
+</head>
+<body data-tab="cost">
+  {% csrf_token %}
+
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Global Mobility Planner</h1>
+      <p class="lede">What it costs, and what it takes, to send an employee to work in another country.
+        Figures are a planning estimate, not tax advice.</p>
+    </div>
+  </header>
+
+  <!-- Tabs in a sidebar on the left, content on the right -->
+  <div class="layout wrap">
+    <nav class="tabs" role="tablist" aria-orientation="vertical">
+      <button class="tab active" role="tab" aria-selected="true" data-tab="cost">
+        Cost estimate
+        <span class="tab-hint">What the move costs</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="immigration">
+        Immigration
+        <span class="tab-hint">Visa, fees and timing</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="sources">
+        Sources
+        <span class="tab-hint">Where the figures come from</span>
+      </button>
+    </nav>
+
+    <main class="content">
+
+      <!-- Cost estimate tab -->
+      <section id="tab-cost" class="tab-panel" role="tabpanel">
+        <div class="intro-row">
+          <p class="intro">Fill in the assignment details and press Calculate cost. To see how it works first, try the worked example.</p>
+          <button type="button" class="secondary" data-example="cost">Fill in the worked example</button>
+        </div>
+
+        <details class="explainer">
+          <summary>New to this? How the estimate works</summary>
+          <dl>
+            <dt>Tax equalisation</dt>
+            <dd>The employee should be no better and no worse off than if they had stayed at home. The employer pays whatever tax the host country charges.</dd>
+            <dt>Hypothetical tax</dt>
+            <dd>The tax and social security the employee would have paid at home. The employer deducts it from their pay, so they still bear their usual home tax. It reduces the employer's cost.</dd>
+            <dt>Tax on tax</dt>
+            <dd>UK tax paid by the employer is itself taxable income, so it has to be grossed up. The tool repeats the calculation until the tax stops changing, solving <code>T = UKTax(I + T)</code> where <code>I</code> is net home pay plus taxable benefits.</dd>
+            <dt>Social security</dt>
+            <dd>Which country's system applies depends on the social security agreement between the UK and Switzerland. The outcome is explained under the results.</dd>
+          </dl>
+        </details>
+
+        <form id="cost-form" class="panel" novalidate>
+          <div id="cost-errors" class="error-summary" role="alert" hidden></div>
+
+          <!-- Assignment and home pay sit side by side on wide screens -->
+          <div class="form-columns">
+            <fieldset>
+              <legend>Assignment</legend>
+
+              <!-- Only one route is supported, so it is stated rather than offered as a choice -->
+              <p class="route">
+                <span class="route-label">Route covered</span>
+                From Zurich, Switzerland to London, United Kingdom, for a single employee with no children.
+              </p>
+              <input type="hidden" name="home_country" value="CH">
+              <input type="hidden" name="home_city" value="zurich">
+              <input type="hidden" name="host_country" value="UK">
+              <input type="hidden" name="family_status" value="single">
+
+              <div class="fields">
+                <label>Start date
+                  <input type="date" name="start_date">
+                </label>
+                <label>End date
+                  <input type="date" name="end_date">
+                  <small>Whole years only. 6 Apr 2026 to 5 Apr 2028 is two UK tax years.</small>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Home pay</legend>
+              <div class="fields">
+                <label>Base salary in CHF per year
+                  <input type="text" inputmode="decimal" name="base_salary_chf" placeholder="For example 150000">
+                </label>
+                <label>Bonus in CHF per year
+                  <input type="text" inputmode="decimal" name="bonus_chf" placeholder="Leave empty if none">
+                </label>
+                <label>Swiss francs per £1
+                  <input type="text" inputmode="decimal" name="chf_per_gbp" placeholder="For example 1.10">
+                  <small>Exchange rate, used for every year of the assignment.</small>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <fieldset>
+            <legend>Assignment benefits</legend>
+            <p class="help">List anything extra the employer pays because of the move, and pick how the UK taxes it.
+              Moving, travel and temporary housing usually count as qualifying relocation and share one £8,000 tax-free allowance.
+              Cash allowances are taxed as pay. Housing the employer rents is a benefit in kind.</p>
+            <p id="no-benefits" class="note">No benefits added yet.</p>
+            <div id="benefits-table" class="table-scroll" hidden>
+              <table class="benefits">
+                <thead>
+                  <tr>
+                    <th>Benefit</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>How often</th>
+                    <th>Paid in</th>
+                    <th>UK tax treatment</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="benefit-rows"></tbody>
+              </table>
+            </div>
+            <button type="button" id="add-benefit" class="link add-benefit">Add a benefit</button>
+          </fieldset>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">Calculate cost</button>
+          </div>
+        </form>
+
+        <div id="cost-output" hidden>
+          <div class="result-toolbar">
+            <label class="inline" for="display-currency">Show figures in</label>
+            <select id="display-currency">
+              <option value="gbp">Pounds (GBP)</option>
+              <option value="chf">Swiss francs (CHF)</option>
+            </select>
+            <button type="button" class="secondary print-button">Print or save as PDF</button>
+          </div>
+          <div id="cost-result"></div>
+        </div>
+      </section>
+
+      <!-- Immigration tab -->
+      <section id="tab-immigration" class="tab-panel" role="tabpanel" hidden>
+        <div class="intro-row">
+          <p class="intro">Checks whether the employee qualifies for a UK work visa and lists every step, fee and wait involved.</p>
+          <button type="button" class="secondary" data-example="immigration">Fill in the worked example</button>
+        </div>
+
+        <form id="immigration-form" class="panel" novalidate>
+          <div id="immigration-errors" class="error-summary" role="alert" hidden></div>
+
+          <p class="route">
+            <span class="route-label">Case covered</span>
+            A Swiss national moving to work for a UK branch or subsidiary of their employer.
+          </p>
+          <input type="hidden" name="nationality" value="CH">
+          <input type="hidden" name="host_country" value="UK">
+
+          <p class="help">Dates, salary and exchange rate are shared with the Cost estimate tab. Changing them here changes them there too.</p>
+
+          <div class="fields">
+            <label>Start date
+              <input type="date" name="start_date">
+            </label>
+            <label>End date
+              <input type="date" name="end_date">
+            </label>
+            <label>Base salary in CHF per year
+              <input type="text" inputmode="decimal" name="base_salary_chf" placeholder="For example 150000">
+              <small>The visa salary test counts guaranteed basic pay only, not the bonus.</small>
+            </label>
+            <label>Swiss francs per £1
+              <input type="text" inputmode="decimal" name="chf_per_gbp" placeholder="For example 1.10">
+            </label>
+            <label>Months with the employer so far
+              <input type="text" inputmode="numeric" name="months_with_employer" placeholder="For example 36">
+              <small>Usually at least 12 are needed, unless the salary is high.</small>
+            </label>
+            <label>Size of the UK sponsor
+              <select name="sponsor_size">
+                <option value="medium_large">Medium or large company</option>
+                <option value="small">Small company or charity</option>
+              </select>
+              <small>Changes the sponsor licence fee and the Immigration Skills Charge.</small>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">Check requirements</button>
+          </div>
+        </form>
+
+        <div id="immigration-output" hidden>
+          <div class="result-toolbar">
+            <button type="button" class="secondary print-button">Print or save as PDF</button>
+          </div>
+          <div id="immigration-result"></div>
+        </div>
+      </section>
+
+      <!-- Sources tab, filled in from the latest results -->
+      <section id="tab-sources" class="tab-panel" role="tabpanel" hidden>
+        <p class="intro">Every rate, fee and rule in the results comes from an official page listed here.
+          The small numbers next to a line in the results match the numbers below.</p>
+
+        <div id="cost-sources-panel" class="panel">
+          <h2>Sources for the cost estimate</h2>
+          <div id="cost-sources"><p class="note">Calculate a cost estimate to see its sources.</p></div>
+        </div>
+
+        <div id="immigration-sources-panel" class="panel">
+          <h2>Sources for the immigration check</h2>
+          <div id="immigration-sources"><p class="note">Check the immigration requirements to see their sources.</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- One row of the benefits table, copied each time a benefit is added -->
+  <template id="benefit-row-template">
+    <tr>
+      <td><input type="text" name="name" aria-label="Benefit name"></td>
+      <td><input type="text" inputmode="decimal" name="amount" aria-label="Amount" class="num"></td>
+      <td>
+        <select name="currency" aria-label="Currency">
+          <option>GBP</option>
+          <option>CHF</option>
+        </select>
+      </td>
+      <td>
+        <select name="frequency" aria-label="How often">
+          <option value="monthly">Per month</option>
+          <option value="annual">Per year</option>
+          <option value="one_off">One-off</option>
+        </select>
+      </td>
+      <td>
+        <select name="years" aria-label="Years">
+          <option value="all">Every year</option>
+          <option value="first">Year 1 only</option>
+        </select>
+      </td>
+      <td>
+        <select name="treatment" aria-label="UK tax treatment">
+          <option value="taxable_cash">Taxable cash</option>
+          <option value="benefit_in_kind">Taxable benefit in kind</option>
+          <option value="qualifying_relocation">Qualifying relocation (exempt up to £8,000)</option>
+          <option value="not_taxable">Not taxable in the UK</option>
+        </select>
+      </td>
+      <td class="remove-cell"><button type="button" class="link remove">Remove</button></td>
+    </tr>
+  </template>
+
+  <script src="{% static 'estimator/app.js' %}"></script>
+</body>
+</html>
