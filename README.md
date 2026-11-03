@@ -12,6 +12,8 @@ The page has three tabs, listed in a sidebar on the left:
   what the employer must do, with timings and costs.
 - **Sources:** the official page behind every rate, fee and rule used in the results.
 
+Video walkthrough: <https://www.loom.com/share/0fd06543c611402ca9da91c8a111720a>
+
 > This is an exercise, not tax or immigration advice.
 
 ## Install and run
@@ -30,7 +32,10 @@ cd backend
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/>. Press `Ctrl+C` in the terminal to stop the server.
+On Windows, activate the environment with `.venv\Scripts\activate` instead of the `source` line.
+
+Open <http://127.0.0.1:8000/> and press **Fill in the worked example** to see a full cost estimate.
+Press `Ctrl+C` in the terminal to stop the server.
 
 No secret key is stored in the repository. For local use the app generates a random one at start-up;
 for a real deployment set `DJANGO_SECRET_KEY` and `DJANGO_DEBUG=0` in the environment.
